@@ -1,0 +1,1597 @@
+{
+  "name": "Working--Shumedha-Linkedin-Text-post",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        64
+      ],
+      "id": "72273e8c-6598-437b-8a4b-3339cac7b87a",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "o9PSPnjhSU",
+        "text": "={{ $('AI Agent - for JD').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        -160
+      ],
+      "id": "6e7e5522-aba9-47fe-bcdb-c9fd39f274fe",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "3E0n31jHQUqydR2D",
+          "name": "Sumedha_Linkedin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        64
+      ],
+      "id": "2b9def8b-90fa-4ab2-aa23-75210a4754a6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bDgQPyQv7ORADeDR",
+          "name": "Google Gemini-sibu.4th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a validator. You will receive a plain-text LinkedIn job post immediately after this instruction. Do not ask for more input. Read the job post and perform a soft validation. Then output exactly one word: YES or NO (uppercase). Do not output anything else, no explanation, no punctuation, no whitespace, no newline—only the single token YES or NO.\n\nSoft validation rules (be tolerant — case-insensitive, ignore minor whitespace or small wording differences, order may vary, bullets can be • / - / \\* ):\n\nRequired elements (each must appear somewhere in the text under the tolerance rules):\n\n1. A headline containing the phrase \"Hiring Alert\" and a job title. If the Experience is 1 year or less or the Experience line is missing, the word \"Fresher\" must appear in the headline or job title (or be clearly implied by the Experience line).\n2. An \"Experience:\" line with an experience range (for example \"0-1 year\", \"0–1 years\", \"6 months – 1 year\"). If the Experience line is missing or indicates ≤ 1 year, treat as Fresher and require Fresher in the headline as above.\n3. A Skills section header (for example \"Skills:\", \"Skills Required:\", \"Required Skills:\") with at least one bullet item beneath it.\n4. A Responsibilities section header (for example \"Responsibilities:\", \"Role:\", \"What you will do:\") with at least one bullet item beneath it.\n5. A \"How to Apply:\" line that contains either a valid link (http or https) or an email address.\n6. A hashtags line that includes the token \"hashtag#Hiring\" plus between 1 and 7 additional hashtag# tokens (for example hashtag#BackendDeveloper). Tokens must start with \"hashtag#\".\n\nTolerance details:\n• Section header variants are acceptable (for example \"Skills\", \"Required Skills\", \"Skills Required\").\n• Bullet characters may be \"•\", \"-\", or \"\\*\". At least one bullet must exist under Skills and under Responsibilities.\n• Allow minor punctuation and capitalization differences.\n• Ignore extra sections, company paragraphs, or footer text.\n• If Experience is ambiguous, treat missing or clearly ≤ 1 year as Fresher and require \"Fresher\" in the headline/title.\n\nFailure rules (return NO if any of the following):\n• No Skills header or no bullets under Skills.\n• No Responsibilities header or no bullets under Responsibilities.\n• No \"How to Apply:\" line with a link or email.\n• No hashtags line that includes \"hashtag#Hiring\".\n• Headline does not contain \"Hiring Alert\" and a job title, or Fresher is required but missing from headline/title.\n\nValidation outcome:\n• Return YES if all required elements are present under the tolerance rules.\n• Return NO if one or more required elements are missing or obviously malformed.\n\nNow validate the job post that follows (the job post begins on the next line). Output ONLY \"YES\" or \"NO\" - {{ $json.output }}",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        -176
+      ],
+      "id": "2bc57848-7b8d-4e49-8250-3b1d3b91aa12",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI that converts job descriptions into LinkedIn hiring posts in plain text.\n\nFollow these rules:\n\n1. Use this format strictly:\n\n{Hiring Alert – Fresher [Automatically determine a clear, easy-to-understand job title from the JD (e.g., \"Frontend Developer\", \"Data Analyst\", \"IT Support Engineer\") and insert it here]}\n\nExperience: Always display the exact experience range from the JD (e.g., \"0–1 years\"); if the JD shows 1 year or less or has no experience listed, append \" (Fresher)\" after the range.\n\n\\[Company Name] is looking for a \\[Job Title]. ( if [Company Name] not present → skip)\n\nLocation: \\[Mentioned location in JD, if not present → skip]\n\nSkills Required:\n• \\[List key skills from JD. If not mentioned, skip]\n\nResponsibilities:\n• \\[List responsibilities from JD. If not mentioned, skip]\n\nHow to Apply: \\[Application link provided (In the Bottom there was a apply link)]\n\nhashtag#Hiring hashtag#\\[Domain/Role] hashtag#\\[Extracted skills/technologies] hashtag#\\[Location if mentioned]}\n\n2. Always include **“Fresher”** with the role if required experience is **1 year or less, or not mentioned**.\n3. If something is missing in the JD (skills, responsibilities, location, etc.), skip that portion.\n4. Extract **Domain/Job Title** from the JD’s skills and responsibilities (e.g., Backend Developer, Data Analyst, IT Support, Digital Marketing).\n5. Generate **hashtags dynamically** based on:\n   • Role (e.g., hashtag#BackendDeveloper)\n   • Skills/technologies (e.g., hashtag#Linux, hashtag#Windows, hashtag#JavaScript)\n   • Location (if mentioned, e.g., hashtag#Bangalore)\n   • Always include hashtag#Hiring\n6. Limit hashtags to **6–8 maximum** to keep the post clean and professional.\n7. Keep output in **plain text only** (no markdown, no bold/italic).\n\n---\n\n**Example Input:**\nJob Description:\nAmazon is looking for a Backend Developer. Location: Bengaluru, Karnataka, India. Experience: 0 to 1 year. Skills: Windows, Linux, IT troubleshooting, ITIL tools. Responsibilities: Provide 24×7 support, follow SOPs, document issues, collaborate globally, participate in shifts.\nLink: [https://lnkd.in/gDX8RbxY]\n\n**Example Output:**\nHiring Alert – Fresher Backend Developer\n\nExperience: 0 to 1 year\n\nAmazon is looking for a Backend Developer.\n\nLocation: Bengaluru, Karnataka, India\n\nSkills Required:\n• Windows and Linux\n• IT troubleshooting on desktops and laptops\n• ITIL-based ticketing tools\n\nResponsibilities:\n• Provide 24×7 support for end-user devices\n• Follow SOPs and meet SLA targets\n• Document issues and solutions in the system\n• Collaborate with global teams\n• Participate in rotational shifts\n\nHow to Apply: [https://lnkd.in/gDX8RbxY]\n\nhashtag#Hiring hashtag#BackendDeveloper hashtag#ITSupport hashtag#Linux hashtag#Windows hashtag#Bangalore\n -  {{ $json['Job Description'] }}",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -176
+      ],
+      "id": "3db0a60f-d159-4249-925a-471a5b124de2",
+      "name": "AI Agent - for JD"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        -112
+      ],
+      "id": "f40097d0-88e1-4a6a-9caf-f0e8edb43289",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -672,
+        -112
+      ],
+      "id": "943c57ea-f7f6-4cf5-a485-432f16e30a32",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "94a99d97-b43f-4811-9bce-6b40fbc80a74",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        -112
+      ],
+      "id": "38bc3cea-2a6c-4200-88ea-19eae0a8b5d4",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3264,
+        64
+      ],
+      "id": "78caf838-4757-4d65-bc22-d9eb372e1659",
+      "name": "Wait",
+      "webhookId": "81fb8a1d-2b1c-4b63-8c44-5bc9461d3785"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        -288
+      ],
+      "id": "eb84e92c-e947-4f61-8cc6-d528aeadb93e",
+      "name": "SN-Loop"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Done",
+            "SN": "={{ $('SN-Loop').item.json.SN }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2576,
+        -288
+      ],
+      "id": "8c7fe5d5-aeee-4895-a93f-b30ae431c7df",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Failed",
+            "SN": "={{ $('SN-Loop').item.json.SN }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2592,
+        -48
+      ],
+      "id": "206dd22f-bc32-4891-b2b9-8af2815d1e03",
+      "name": "Append or update row in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        416,
+        80
+      ],
+      "id": "8fa9047b-9ad3-4e65-8202-fcb55c3298b9",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -432
+      ],
+      "id": "42f59982-d9cb-4ed6-81b1-18bbfe457d76",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bDgQPyQv7ORADeDR",
+          "name": "Google Gemini-sibu.4th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SN": "={{ $('SN-Loop').item.json.SN }}",
+            "Output": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2912,
+        -576
+      ],
+      "id": "8b01f418-ab87-45eb-8593-18bb2070e797",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract only the company name, job role, and years of experience from the job description text and return in this exact single-line format:\n\n[Company Name] - [Apply Link] - [Job Role] - [Experience Years]\n\nExample: \"VAYUZ Technologies - Data Analyst - 1-10 years\"\n\nRules:\n- Return only one line in the specified format\n- Use \" - \" (space-dash-space) as separators\n- If any information is missing, write \"Not specified\" for that field\n- No additional text, explanations, or formatting\n\nJob Description Text: [{{ $('AI Agent - for JD').item.json.output }}]",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2576,
+        -608
+      ],
+      "id": "3765c32e-0057-493c-a11a-4a239da7d537",
+      "name": "Output-AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        -272
+      ],
+      "id": "5b0a3883-f237-4cb8-8e8e-5a740dc0c2a7",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "liAiepumVov00Fa9",
+          "name": "Google Gemini-sibu.6th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b5a93fe0-bf46-496e-bd4c-a5e2121202fb",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -176
+      ],
+      "id": "0e3f9d12-b4f9-47cd-8ed2-f5b998b5515d",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -224
+      ],
+      "id": "9c059741-098a-4cba-9d7a-3663f17ee0fe",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "liAiepumVov00Fa9",
+          "name": "Google Gemini-sibu.6th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        -224
+      ],
+      "id": "267f21d9-ba8e-4a1d-8193-b935cc4d6018",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        336,
+        64
+      ],
+      "id": "0d3f7c76-e1f6-4ef6-bf6e-da5b15e0c234",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bDgQPyQv7ORADeDR",
+          "name": "Google Gemini-sibu.4th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI that converts job descriptions into LinkedIn hiring posts in plain text.\n\nFollow these rules:\n\n1. Use this format strictly:\n\n{Hiring Alert – Fresher [Automatically determine a clear, easy-to-understand job title from the JD (e.g., \"Frontend Developer\", \"Data Analyst\", \"IT Support Engineer\") and insert it here]}\n\nExperience: Always display the exact experience range from the JD (e.g., \"0–1 years\"); if the JD shows 1 year or less or has no experience listed, append \" (Fresher)\" after the range.\n\n\\[Company Name] is looking for a \\[Job Title]. ( if [Company Name] not present → skip)\n\nLocation: \\[Mentioned location in JD, if not present → skip]\n\nSkills Required:\n• \\[List key skills from JD. If not mentioned, skip]\n\nResponsibilities:\n• \\[List responsibilities from JD. If not mentioned, skip]\n\nHow to Apply: \\[Application link provided (In the Bottom there was a apply link)]\n\nhashtag#Hiring hashtag#\\[Domain/Role] hashtag#\\[Extracted skills/technologies] hashtag#\\[Location if mentioned]}\n\n2. Always include **“Fresher”** with the role if required experience is **1 year or less, or not mentioned**.\n3. If something is missing in the JD (skills, responsibilities, location, etc.), skip that portion.\n4. Extract **Domain/Job Title** from the JD’s skills and responsibilities (e.g., Backend Developer, Data Analyst, IT Support, Digital Marketing).\n5. Generate **hashtags dynamically** based on:\n   • Role (e.g., hashtag#BackendDeveloper)\n   • Skills/technologies (e.g., hashtag#Linux, hashtag#Windows, hashtag#JavaScript)\n   • Location (if mentioned, e.g., hashtag#Bangalore)\n   • Always include hashtag#Hiring\n6. Limit hashtags to **6–8 maximum** to keep the post clean and professional.\n7. Keep output in **plain text only** (no markdown, no bold/italic).\n\n---\n\n**Example Input:**\nJob Description:\nAmazon is looking for a Backend Developer. Location: Bengaluru, Karnataka, India. Experience: 0 to 1 year. Skills: Windows, Linux, IT troubleshooting, ITIL tools. Responsibilities: Provide 24×7 support, follow SOPs, document issues, collaborate globally, participate in shifts.\nLink: [https://lnkd.in/gDX8RbxY]\n\n**Example Output:**\nHiring Alert – Fresher Backend Developer\n\nExperience: 0 to 1 year\n\nAmazon is looking for a Backend Developer.\n\nLocation: Bengaluru, Karnataka, India\n\nSkills Required:\n• Windows and Linux\n• IT troubleshooting on desktops and laptops\n• ITIL-based ticketing tools\n\nResponsibilities:\n• Provide 24×7 support for end-user devices\n• Follow SOPs and meet SLA targets\n• Document issues and solutions in the system\n• Collaborate with global teams\n• Participate in rotational shifts\n\nHow to Apply: [https://lnkd.in/gDX8RbxY]\n\nhashtag#Hiring hashtag#BackendDeveloper hashtag#ITSupport hashtag#Linux hashtag#Windows hashtag#Bangalore\n -  {{ $('SN-Loop').item.json[\"Job Description\"] }}",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        -448
+      ],
+      "id": "b57094ec-e34b-43de-b591-f844693afe97",
+      "name": "Re-Generate-AI Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a validator. You will receive a plain-text LinkedIn job post immediately after this instruction. Do not ask for more input. Read the job post and perform a soft validation. Then output exactly one word: YES or NO (uppercase). Do not output anything else, no explanation, no punctuation, no whitespace, no newline—only the single token YES or NO.\n\nSoft validation rules (be tolerant — case-insensitive, ignore minor whitespace or small wording differences, order may vary, bullets can be • / - / \\* ):\n\nRequired elements (each must appear somewhere in the text under the tolerance rules):\n\n1. A headline containing the phrase \"Hiring Alert\" and a job title. If the Experience is 1 year or less or the Experience line is missing, the word \"Fresher\" must appear in the headline or job title (or be clearly implied by the Experience line).\n2. An \"Experience:\" line with an experience range (for example \"0-1 year\", \"0–1 years\", \"6 months – 1 year\"). If the Experience line is missing or indicates ≤ 1 year, treat as Fresher and require Fresher in the headline as above.\n3. A Skills section header (for example \"Skills:\", \"Skills Required:\", \"Required Skills:\") with at least one bullet item beneath it.\n4. A Responsibilities section header (for example \"Responsibilities:\", \"Role:\", \"What you will do:\") with at least one bullet item beneath it.\n5. A \"How to Apply:\" line that contains either a valid link (http or https) or an email address.\n6. A hashtags line that includes the token \"hashtag#Hiring\" plus between 1 and 7 additional hashtag# tokens (for example hashtag#BackendDeveloper). Tokens must start with \"hashtag#\".\n\nTolerance details:\n• Section header variants are acceptable (for example \"Skills\", \"Required Skills\", \"Skills Required\").\n• Bullet characters may be \"•\", \"-\", or \"\\*\". At least one bullet must exist under Skills and under Responsibilities.\n• Allow minor punctuation and capitalization differences.\n• Ignore extra sections, company paragraphs, or footer text.\n• If Experience is ambiguous, treat missing or clearly ≤ 1 year as Fresher and require \"Fresher\" in the headline/title.\n\nFailure rules (return NO if any of the following):\n• No Skills header or no bullets under Skills.\n• No Responsibilities header or no bullets under Responsibilities.\n• No \"How to Apply:\" line with a link or email.\n• No hashtags line that includes \"hashtag#Hiring\".\n• Headline does not contain \"Hiring Alert\" and a job title, or Fresher is required but missing from headline/title.\n\nValidation outcome:\n• Return YES if all required elements are present under the tolerance rules.\n• Return NO if one or more required elements are missing or obviously malformed.\n\nNow validate the job post that follows (the job post begins on the next line). Output ONLY \"YES\" or \"NO\" - {{ $json.output }}",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1744,
+        -448
+      ],
+      "id": "addf0c37-8697-4dfa-9e58-a8e160179f79",
+      "name": "Re-Generate-AI Agent-2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "24d3e918-d529-47cd-99a1-37513471ab5e",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2032,
+        -384
+      ],
+      "id": "1798727f-5e07-40a9-a9b6-208f5490e6f5",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af53f1b3-095d-418d-99c3-1e6442e5cfa8",
+              "leftValue": "={{ $json.Count }}",
+              "rightValue": "=3",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -464
+      ],
+      "id": "c951326b-ae28-410e-b511-851d8c9a14a1",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 604361273,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=604361273"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        96
+      ],
+      "id": "e4861083-99e8-4b42-ab3c-39e0e0eb4ba3",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        992,
+        -480
+      ],
+      "id": "abee1f89-606f-497e-91c2-62397ef9a00f",
+      "name": "SN-Loop1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        -16
+      ],
+      "id": "4db7675b-b5ba-4243-bd8c-f2ee1c213023",
+      "name": "Wait1",
+      "webhookId": "c4e97fd5-c141-4e93-aba7-c1c488e88687"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dafac37a-694e-4dd5-a942-bef57d1ad2d3",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "68313ed6-3901-47ca-801d-1977852d8a5a",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        -176
+      ],
+      "id": "818029b2-96d4-4c22-a730-d35df8986add",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "content": "This portion try to Re-Generate the Linkedin_Post_Text ",
+        "height": 928,
+        "width": 1312
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        -704
+      ],
+      "typeVersion": 1,
+      "id": "b341da68-b6cc-48d5-a0ea-4f13b4f65876",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        -736
+      ],
+      "id": "963ca35f-41d6-41d9-bba3-dcc7d33c065e",
+      "name": "Google Gemini Chat Model5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "liAiepumVov00Fa9",
+          "name": "Google Gemini-sibu.6th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SN": "={{ $('SN-Loop').item.json.SN }}",
+            "Output": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2880,
+        -880
+      ],
+      "id": "c9571b16-7519-4da1-ae74-81b08214d6ad",
+      "name": "Append or update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract only the company name, job role, and years of experience from the job description text and return in this exact single-line format:\n\n[Company Name] - [Apply Link] - [Job Role] - [Experience Years]\n\nExample: \"VAYUZ Technologies - Data Analyst - 1-10 years\"\n\nRules:\n- Return only one line in the specified format\n- Use \" - \" (space-dash-space) as separators\n- If any information is missing, write \"Not specified\" for that field\n- No additional text, explanations, or formatting\n\nJob Description Text: [{{ $('Re-Generate-AI Agent').item.json.output }}]",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        -912
+      ],
+      "id": "3b2dc5ed-b4eb-4775-973d-c51e33d63ee1",
+      "name": "Output-AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        -272
+      ],
+      "id": "3389c83b-c7fd-45f9-8095-1ae9264eecab",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SN": "={{ $('SN-Loop').item.json.SN }}",
+            "JD": "={{ $('Re-Generate-AI Agent').item.json.output }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "JD",
+              "displayName": "JD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3088,
+        -880
+      ],
+      "id": "cc236e33-9202-4f07-83e8-e63805f4cca0",
+      "name": "Append or update row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E",
+          "mode": "list",
+          "cachedResultName": "Linkedin Job Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15WGc6Y6kGvtWhMPiKZLlN1z6cj3Xx59Y_9ejSYmoB7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SN": "={{ $('SN-Loop').item.json.SN }}",
+            "JD": "={{ $('AI Agent - for JD').item.json.output }}"
+          },
+          "matchingColumns": [
+            "SN"
+          ],
+          "schema": [
+            {
+              "id": "SN",
+              "displayName": "SN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "JD",
+              "displayName": "JD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3152,
+        -576
+      ],
+      "id": "be297d52-097a-4eeb-a470-8489414f1b01",
+      "name": "Append or update row in sheet5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - for JD",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - for JD",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - for JD": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "SN-Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "SN-Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        []
+      ]
+    },
+    "SN-Loop": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent - for JD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Output-AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output-AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Re-Generate-AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Re-Generate-AI Agent-2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Re-Generate-AI Agent-2",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-Generate-AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Re-Generate-AI Agent-2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-Generate-AI Agent-2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output-AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Re-Generate-AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "SN-Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SN-Loop1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "SN-Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Output-AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append or update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Output-AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output-AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Re-Generate-AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de442316-df06-4462-a8f5-132e287eded2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80ede59fd4625ab3890a228bb149131e70c9fc252e776f7cd4cba830c3f8cb6d"
+  },
+  "id": "Qz0eCMGBn9smrjDP",
+  "tags": []
+}
