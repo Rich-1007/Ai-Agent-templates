@@ -1,0 +1,2956 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1qR7wGDMvMzC3Z3h8rbe-4mENMy7MN4R7",
+          "mode": "list",
+          "cachedResultName": "All_Invoice",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1qR7wGDMvMzC3Z3h8rbe-4mENMy7MN4R7"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -112
+      ],
+      "id": "11590c9c-1e89-4a88-b93b-fb97027b6747",
+      "name": "Google Drive Trigger1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        -112
+      ],
+      "id": "849ffcd8-7fb5-4056-9b88-5f3fa1f04c85",
+      "name": "Downloading the file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Getting file\n",
+        "height": 240,
+        "width": 360,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -192
+      ],
+      "id": "5e9b9c62-a74a-4c94-bc83-d1ac79fb4da9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "documentType": "image_url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mistralAi",
+      "typeVersion": 1,
+      "position": [
+        448,
+        48
+      ],
+      "id": "5aed70e6-83ec-44c5-9c19-0f321cd11838",
+      "name": "Extract Image",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "0mqA0Kw7zdWvMErx",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mistralAi",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "29a2461b-d409-40de-a3cf-0ea261ecdb75",
+      "name": "Extract Image1",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "0mqA0Kw7zdWvMErx",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d2aa9848-7c65-49ae-a9e8-0e74eb89dfde",
+              "leftValue": "={{ $('Google Drive Trigger1').item.json.mimeType }}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -112
+      ],
+      "id": "4a0496e4-18ec-4f2c-b47b-6577ff67ef87",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.extractedText }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "=Invoice No",
+              "description": "Invoice number"
+            },
+            {
+              "name": "=Dated",
+              "description": "Date"
+            },
+            {
+              "name": "=Buyer's Order No",
+              "description": "Buyer's Order No"
+            },
+            {
+              "name": "=Supplier Name",
+              "description": "Supplier Name"
+            },
+            {
+              "name": "=Supplier GSTIN/UIN",
+              "description": "Supplier GSTIN/UIN"
+            },
+            {
+              "name": "=HSN/SAC",
+              "description": "HSN/SAC"
+            },
+            {
+              "name": "=Quantity (M.T./Kgs)",
+              "description": "Quantity (M.T./Kgs)"
+            },
+            {
+              "name": "=Taxable Value",
+              "description": "Taxable Value"
+            },
+            {
+              "name": "=CGST Amount",
+              "description": "CGST Amount"
+            },
+            {
+              "name": "=SGST/UTGST Amount",
+              "description": "SGST/UTGST Amount"
+            },
+            {
+              "name": "=Total Tax Amount",
+              "description": "Total Tax Amount"
+            },
+            {
+              "name": "=Total (Grand Total)",
+              "description": "Total (Grand Total)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        64
+      ],
+      "id": "301235f3-9148-4c5b-90a6-a12a23a21b06",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-05-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        672,
+        256
+      ],
+      "id": "89aec990-93fa-499d-a038-ecb06c116a4a",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.extractedText }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "=Invoice No",
+              "description": "Invoice number"
+            },
+            {
+              "name": "=Dated",
+              "description": "Date"
+            },
+            {
+              "name": "=Buyer's Order No",
+              "description": "Buyer's Order No"
+            },
+            {
+              "name": "=Supplier Name",
+              "description": "Supplier Name"
+            },
+            {
+              "name": "=Supplier GSTIN/UIN",
+              "description": "Supplier GSTIN/UIN"
+            },
+            {
+              "name": "=HSN/SAC",
+              "description": "HSN/SAC"
+            },
+            {
+              "name": "=Quantity (M.T./Kgs)",
+              "description": "Quantity (M.T./Kgs)"
+            },
+            {
+              "name": "=Taxable Value",
+              "description": "Taxable Value"
+            },
+            {
+              "name": "=CGST Amount",
+              "description": "CGST Amount"
+            },
+            {
+              "name": "=SGST/UTGST Amount",
+              "description": "SGST/UTGST Amount"
+            },
+            {
+              "name": "=Total Tax Amount",
+              "description": "Total Tax Amount"
+            },
+            {
+              "name": "=Total (Grand Total)",
+              "description": "Total (Grand Total)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        -320
+      ],
+      "id": "b634cb25-7fea-4bb1-9757-39ac87e15dd4",
+      "name": "Information Extractor1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-05-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -96
+      ],
+      "id": "709698f0-d174-4265-9650-c6cbd8f22ed0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7f1452c6-63a4-464f-af1c-6a5eefe5aa94",
+              "leftValue": "={{ $json.output['Invoice No'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e5c9b864-6138-4720-988d-722165243b68",
+              "leftValue": "={{ $json.output['Buyer\\'s Order No'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a6b50587-bd69-4015-801c-4bcbb99487cd",
+              "leftValue": "={{ $json.output['Supplier Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7d0ebfe6-0edc-4289-a49c-27f28c1c14bb",
+              "leftValue": "={{ $json.output['Supplier GSTIN/UIN'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eef01391-9b2d-4d3d-9089-e8a0831b6d3c",
+              "leftValue": "={{ $json.output['HSN/SAC'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "09812d5d-460a-4ae9-aadb-0f0acbd830d4",
+              "leftValue": "={{ $json.output['Quantity (M.T./Kgs)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "4e6cf574-be56-4374-b6f8-39dc7a5da0ba",
+              "leftValue": "={{ $json.output['Taxable Value'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "bcdd5569-c1e8-49ef-ad9e-cdd11842bdfd",
+              "leftValue": "={{ $json.output['Total Tax Amount'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8c5e6374-544e-4e92-82bf-a4d420ce6bd7",
+              "leftValue": "={{ $json.output['Total (Grand Total)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "198e01e0-b4e1-4538-9397-8d0ea0c5c9a5",
+              "leftValue": "={{ $json.output.Dated }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        -224
+      ],
+      "id": "b78810f0-9a82-4132-bf07-cc9236b3b791",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        128
+      ],
+      "id": "9b0d1216-75b1-4b81-b235-b6f9514b4c7c",
+      "name": "Wait2",
+      "webhookId": "20afd25b-d167-4624-aacf-82597e2eb755"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "585f0360-9008-491c-9144-155c339a26ed",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "SUCCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1904,
+        128
+      ],
+      "id": "32b645ff-145b-4ba5-8e95-0a556ca34758",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2176,
+        272
+      ],
+      "id": "fe266c02-72cb-400b-9f97-91e880154ca8",
+      "name": "Wait3",
+      "webhookId": "bfe026bd-6e4d-4713-9cca-bc3ac15dc8eb"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/parsing/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1344,
+        128
+      ],
+      "id": "4f5c1187-b2c7-4768-9753-e34a11374289",
+      "name": "Sending the file1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CwdbnmfbNkTcqAzA",
+          "name": "Lama_Cloud-Hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{ $json.id }}/result/markdown",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2176,
+        112
+      ],
+      "id": "1fcccf70-7cba-4711-aeb7-c596b8230b1b",
+      "name": "Getting Markdown1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CwdbnmfbNkTcqAzA",
+          "name": "Lama_Cloud-Hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1744,
+        128
+      ],
+      "id": "3c3e036c-eff6-42eb-a1a5-6712cf0b9106",
+      "name": "Checking The Status1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CwdbnmfbNkTcqAzA",
+          "name": "Lama_Cloud-Hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Retrieve Information\n \n",
+        "height": 416,
+        "width": 1056,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        48
+      ],
+      "id": "e6bf235f-5b1b-4dc7-9e6f-7f86c4a7031a",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger1').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9",
+          "mode": "list",
+          "cachedResultName": "Processed_Invoice",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3184,
+        -480
+      ],
+      "id": "bc78924d-611c-4a72-9d91-7edc1af7b4bd",
+      "name": "Move file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Quantity": "={{ $json.output['Quantity (M.T./Kgs)'] }}",
+            "Invoice_Link": "={{ $('Downloading the file1').item.json.webViewLink }}",
+            "Total_Amount": "={{ $json.output['Total Tax Amount'] }}",
+            "Taxable_Value": "={{ $json.output['Taxable Value'] }}",
+            "HSN/SAC_Code": "={{ $json.output['HSN/SAC'] }}",
+            "Supplier_GSTIN": "={{ $json.output['Supplier GSTIN/UIN'] }}",
+            "Supplier_Name": "={{ $json.output['Supplier Name'] }}",
+            "Invoice_Date": "={{ $json.output.Dated }}",
+            "Invoice_Number": "={{ $json.output['Invoice No'] }}",
+            "CGST_Amount": "={{ $json.output['CGST Amount'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice_Number",
+              "displayName": "Invoice_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Date",
+              "displayName": "Invoice_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_Name",
+              "displayName": "Supplier_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_GSTIN",
+              "displayName": "Supplier_GSTIN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HSN/SAC_Code",
+              "displayName": "HSN/SAC_Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CGST_Amount",
+              "displayName": "CGST_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Taxable_Value",
+              "displayName": "Taxable_Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total_Amount",
+              "displayName": "Total_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Link",
+              "displayName": "Invoice_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rag_Status",
+              "displayName": "Rag_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3008,
+        -480
+      ],
+      "id": "44245125-fa65-4190-aed6-916976b4e8ed",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 6
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        -480
+      ],
+      "id": "434a711b-4df7-4296-a9d7-6bcc6618a3db",
+      "name": "Wait4",
+      "webhookId": "e6cca1fd-f572-4dd1-9b41-1a9d2212dff4"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger1').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        128
+      ],
+      "id": "e860bbca-065f-445d-b5f0-e86367a131a2",
+      "name": "Downloading the file4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.markdown }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "=Invoice No",
+              "description": "Invoice number"
+            },
+            {
+              "name": "=Dated",
+              "description": "Date"
+            },
+            {
+              "name": "=Buyer's Order No",
+              "description": "Buyer's Order No"
+            },
+            {
+              "name": "=Supplier Name",
+              "description": "Supplier Name"
+            },
+            {
+              "name": "=Supplier GSTIN/UIN",
+              "description": "Supplier GSTIN/UIN"
+            },
+            {
+              "name": "=HSN/SAC",
+              "description": "HSN/SAC"
+            },
+            {
+              "name": "=Quantity (M.T./Kgs)",
+              "description": "Quantity (M.T./Kgs)"
+            },
+            {
+              "name": "=Taxable Value",
+              "description": "Taxable Value"
+            },
+            {
+              "name": "=CGST Amount",
+              "description": "CGST Amount"
+            },
+            {
+              "name": "=SGST/UTGST Amount",
+              "description": "SGST/UTGST Amount"
+            },
+            {
+              "name": "=Total Tax Amount",
+              "description": "Total Tax Amount"
+            },
+            {
+              "name": "=Total (Grand Total)",
+              "description": "Total (Grand Total)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        2416,
+        96
+      ],
+      "id": "64aec478-8800-4696-8e12-5f09405516f4",
+      "name": "Information Extractor2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-05-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        336
+      ],
+      "id": "d4e4f054-3d25-4907-81b8-947e60d37439",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-preview-05-20",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-preview-05-20"
+        },
+        "text": "You are an expert OCR financial analyst. Extract all 12 data points listed below from the attached **image** and return the output as a single, clean JSON object. Do not include any commentary.\n\n**FIELDS:** \"Invoice No.\", \"Dated\", \"Buyer's Order No.\", \"Supplier Name\", \"Supplier GSTIN/UIN\", \"Taxable Value\", \"CGST Amount\", \"SGST/UTGST Amount\", \"Total Tax Amount\", \"Total (Grand Total)\", \"HSN/SAC\", \"Quantity (M.T./Kgs)\"",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        592
+      ],
+      "id": "49323dcb-f62c-4d4c-8a58-53165ad06c18",
+      "name": "Analyze image1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger1').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1808,
+        592
+      ],
+      "id": "d6b77e1c-fc42-43ca-91f3-e4f152bb4945",
+      "name": "Downloading the file3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-05-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        816
+      ],
+      "id": "6260f398-ebf7-4b06-9559-16f4dc1013a0",
+      "name": "Google Gemini Chat Model7",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7f1452c6-63a4-464f-af1c-6a5eefe5aa94",
+              "leftValue": "={{ $json.output['Invoice No'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a6b50587-bd69-4015-801c-4bcbb99487cd",
+              "leftValue": "={{ $json.output['Supplier Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7d0ebfe6-0edc-4289-a49c-27f28c1c14bb",
+              "leftValue": "={{ $json.output['Supplier GSTIN/UIN'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eef01391-9b2d-4d3d-9089-e8a0831b6d3c",
+              "leftValue": "={{ $json.output['HSN/SAC'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "09812d5d-460a-4ae9-aadb-0f0acbd830d4",
+              "leftValue": "={{ $json.output['Quantity (M.T./Kgs)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "4e6cf574-be56-4374-b6f8-39dc7a5da0ba",
+              "leftValue": "={{ $json.output['Taxable Value'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "bcdd5569-c1e8-49ef-ad9e-cdd11842bdfd",
+              "leftValue": "={{ $json.output['Total Tax Amount'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8c5e6374-544e-4e92-82bf-a4d420ce6bd7",
+              "leftValue": "={{ $json.output['Total (Grand Total)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "198e01e0-b4e1-4538-9397-8d0ea0c5c9a5",
+              "leftValue": "={{ $json.output.Dated }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        592
+      ],
+      "id": "8db7c805-795e-4252-9f53-95ec0e59364e",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.content.parts[0].text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "=Invoice No",
+              "description": "Invoice number"
+            },
+            {
+              "name": "=Dated",
+              "description": "Date"
+            },
+            {
+              "name": "=Buyer's Order No",
+              "description": "Buyer's Order No"
+            },
+            {
+              "name": "=Supplier Name",
+              "description": "Supplier Name"
+            },
+            {
+              "name": "=Supplier GSTIN/UIN",
+              "description": "Supplier GSTIN/UIN"
+            },
+            {
+              "name": "=HSN/SAC",
+              "description": "HSN/SAC"
+            },
+            {
+              "name": "=Quantity (M.T./Kgs)",
+              "description": "Quantity (M.T./Kgs)"
+            },
+            {
+              "name": "=Taxable Value",
+              "description": "Taxable Value"
+            },
+            {
+              "name": "=CGST Amount",
+              "description": "CGST Amount"
+            },
+            {
+              "name": "=SGST/UTGST Amount",
+              "description": "SGST/UTGST Amount"
+            },
+            {
+              "name": "=Total Tax Amount",
+              "description": "Total Tax Amount"
+            },
+            {
+              "name": "=Total (Grand Total)",
+              "description": "Total (Grand Total)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        2192,
+        592
+      ],
+      "id": "8bfad958-0555-40a9-bbff-1740c08c8c45",
+      "name": "Information Extractor3"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger1').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9",
+          "mode": "list",
+          "cachedResultName": "Processed_Invoice",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3184,
+        -96
+      ],
+      "id": "2d5f7992-b476-41f9-859c-90b6444b4100",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Quantity": "={{ $json.output['Quantity (M.T./Kgs)'] }}",
+            "Invoice_Link": "={{ $('Google Drive Trigger1').item.json.webViewLink }}",
+            "Total_Amount": "={{ $json.output['Total (Grand Total)'] }}",
+            "Taxable_Value": "={{ $json.output['Total Tax Amount'] }}",
+            "HSN/SAC_Code": "={{ $json.output['HSN/SAC'] }}",
+            "Supplier_GSTIN": "={{ $json.output['Supplier GSTIN/UIN'] }}",
+            "Supplier_Name": "={{ $json.output['Supplier Name'] }}",
+            "Invoice_Date": "={{ $json.output.Dated }}",
+            "Invoice_Number": "={{ $json.output['Invoice No'] }}",
+            "CGST_Amount": "={{ $json.output['CGST Amount'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice_Number",
+              "displayName": "Invoice_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Date",
+              "displayName": "Invoice_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_Name",
+              "displayName": "Supplier_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_GSTIN",
+              "displayName": "Supplier_GSTIN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HSN/SAC_Code",
+              "displayName": "HSN/SAC_Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CGST_Amount",
+              "displayName": "CGST_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Taxable_Value",
+              "displayName": "Taxable_Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total_Amount",
+              "displayName": "Total_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Link",
+              "displayName": "Invoice_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rag_Status",
+              "displayName": "Rag_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3008,
+        -96
+      ],
+      "id": "2371a11b-fb14-41ea-a69d-f30cf0f33c3e",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 6
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        -96
+      ],
+      "id": "d380757f-e3cc-450b-baea-776748fb0480",
+      "name": "Wait5",
+      "webhookId": "e6cca1fd-f572-4dd1-9b41-1a9d2212dff4"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger1').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9",
+          "mode": "list",
+          "cachedResultName": "Processed_Invoice",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1aV9hgu_GCCrrelQkXeseGrMtObUc9Pj9"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3216,
+        576
+      ],
+      "id": "887058cd-f98a-4ad6-ac50-4c4220f4baf9",
+      "name": "Move file3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qDP3Y5g7GvO5kHe5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Quantity": "={{ $json.output['Quantity (M.T./Kgs)'] || __ }}",
+            "Invoice_Link": "={{ $('Downloading the file1').item.json.webViewLink ||__}}",
+            "Total_Amount": "={{ $json.output['Total (Grand Total)'] || __}}",
+            "Taxable_Value": "={{ $json.output['Total Tax Amount'] || __}}",
+            "Invoice_Number": "={{ $json.output['Invoice No'] || __ }}",
+            "Invoice_Date": "={{ $json.output.Dated || __}}",
+            "Supplier_Name": "={{ $json.output['Supplier Name']  || __}}",
+            "Supplier_GSTIN": "={{ $json.output['Supplier GSTIN/UIN'] || __}}",
+            "HSN/SAC_Code": "={{ $json.output['HSN/SAC'] || __}}",
+            "CGST_Amount": "={{ $json.output['CGST Amount'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice_Number",
+              "displayName": "Invoice_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Date",
+              "displayName": "Invoice_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_Name",
+              "displayName": "Supplier_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Supplier_GSTIN",
+              "displayName": "Supplier_GSTIN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HSN/SAC_Code",
+              "displayName": "HSN/SAC_Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CGST_Amount",
+              "displayName": "CGST_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Taxable_Value",
+              "displayName": "Taxable_Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total_Amount",
+              "displayName": "Total_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Link",
+              "displayName": "Invoice_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rag_Status",
+              "displayName": "Rag_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3024,
+        576
+      ],
+      "id": "0854aa2c-05d7-4095-b1c8-a6df61212dfc",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 6
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3424,
+        576
+      ],
+      "id": "f6d19102-c848-4392-ab15-db45f29b42ac",
+      "name": "Wait6",
+      "webhookId": "e6cca1fd-f572-4dd1-9b41-1a9d2212dff4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3968,
+        -160
+      ],
+      "id": "d34806ec-e3ca-4bb2-9702-a2dd99cb5a76",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d9ec28f2-b8ce-48ea-beb8-22621c9bd2b4",
+      "name": "Default Data Loader2",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        5936,
+        496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "id": "efbca3e8-a22d-46b4-96a2-a562a4dd0f6e",
+      "name": "Recursive Character Text Splitter1",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        5936,
+        624
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform for invoice rows\nconst out = $input.all().map(it => {\n  const d = it.json || {};\n\n  // build short invoice summary for embedding\n  const summary = [\n    `Invoice: ${d['Invoice No.'] || d.invoice_number || 'Unknown'}`,\n    `Date: ${d['Dated'] || d.invoice_date || 'Unknown'}`,\n    `Supplier: ${d['Supplier Name'] || d.supplier_name || 'Unknown'}`,\n    `Total: ${d['Total (Grand Total)'] || d.total_amount || 'Unknown'}`,\n    `Taxable: ${d['Taxable Value'] || d.taxable_value || 'Unknown'}`,\n    `HSN: ${Array.isArray(d['HSN/SAC']) ? d['HSN/SAC'].slice(0,3).join(', ') : (d['HSN/SAC'] || '')}`\n  ].filter(Boolean).join(' • ');\n\n  // metadata keys (normalize to simple keys)\n  const metadata = {\n    unique_id: ((d['Invoice No.'] || d.invoice_number || '') + '_' + (d['Supplier GSTIN/UIN'] || d.supplier_gstin || '')).replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase(),\n    invoice_number: d['Invoice No.'] || d.invoice_number || null,\n    invoice_date: d['Dated'] || d.invoice_date || null,\n    supplier_name: d['Supplier Name'] || d.supplier_name || null,\n    supplier_gstin: d['Supplier GSTIN/UIN'] || d.supplier_gstin || null,\n    hsn_sac: Array.isArray(d['HSN/SAC']) ? d['HSN/SAC'] : (d['HSN/SAC'] ? [d['HSN/SAC']] : []),\n    quantity_total: d['Quantity (Total)'] || d.quantity_total || null,\n    taxable_value: d['Taxable Value'] ? Number(String(d['Taxable Value']).replace(/[,₹\\s]/g,'')) : null,\n    cgst_amount: d['CGST Amount'] ? Number(String(d['CGST Amount']).replace(/[,₹\\s]/g,'')) : null,\n    sgst_amount: d['SGST/UTGST Amount'] ? Number(String(d['SGST/UTGST Amount']).replace(/[,₹\\s]/g,'')) : null,\n    total_amount: d['Total (Grand Total)'] ? Number(String(d['Total (Grand Total)']).replace(/[,₹\\s]/g,'')) : null,\n    raw_text: d.raw_text || d.text || JSON.stringify(d).slice(0,2000),\n    row_number: d.row_number || null,\n    data_type: 'invoice',\n    source: d.source || 'sheet_import',\n    parse_confidence: d.parse_confidence || 0.8 // you can compute this earlier\n  };\n\n  return {\n    pageContent: summary + '\\n\\n' + (metadata.raw_text || ''),\n    metadata,\n    original_data: d\n  };\n}).filter(Boolean);\n\nreturn out;\n"
+      },
+      "id": "d020cfa3-79e9-429c-838a-bd050554eecc",
+      "name": "Transform for Vector",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5216,
+        560
+      ],
+      "typeVersion": 2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.all();\nconst processed = [];\n\nfor (const it of input) {\n  const meta = it.json.metadata || it.json; // if Transform already returned metadata\n  if (!meta) continue;\n\n  const uniqueId = meta.unique_id || ((meta.invoice_number || '') + '_' + (meta.supplier_gstin || '')).replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();\n  meta.unique_id = uniqueId;\n  meta.is_update = !!meta.invoice_number && !!meta.supplier_gstin; // heuristics; you can check DB for existence later\n\n  const pageContent = it.json.pageContent || JSON.stringify(it.json.original_data || meta).slice(0,2000);\n\n  processed.push({\n    pageContent,\n    metadata: meta,\n    original_data: it.json.original_data || {}\n  });\n}\n\nreturn processed;\n"
+      },
+      "id": "f0f93a1f-1490-416e-aac3-dfee328f9476",
+      "name": "Check Existing Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5568,
+        32
+      ],
+      "typeVersion": 2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Potential Leads Knowledge Base\n",
+        "height": 600,
+        "width": 1100,
+        "color": 5
+      },
+      "id": "7b7ab880-afbc-4d6e-b1b9-7db635c76abc",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4608,
+        208
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "embeddingBatchSize": 300,
+        "options": {}
+      },
+      "id": "002404d9-5792-403c-ba3f-3fabfea755c9",
+      "name": "Supabase Vector Store4",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        5888,
+        320
+      ],
+      "typeVersion": 1.3,
+      "credentials": {
+        "supabaseApi": {
+          "id": "fX86GwA1WNNk22ah",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        5680,
+        576
+      ],
+      "id": "43d310a9-e42a-4b65-a3a5-697f11918a81",
+      "name": "Embeddings Google Gemini3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5VNJ7xKmBWUCRFBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4000,
+        304
+      ],
+      "id": "a6f5415f-1771-4406-ad83-95791b2d6c68",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "faadcead-2022-409c-807b-3b34a859c702",
+              "leftValue": "={{ $json.Rag_Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        304
+      ],
+      "id": "2ef23618-384d-488c-8246-afd3987d0205",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6240,
+        320
+      ],
+      "id": "84d9c012-52d9-4c81-8f45-51f5f561c106",
+      "name": "Wait",
+      "webhookId": "d5be04e9-a091-46c6-857d-e373005a904e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e7102fa-0335-4e8b-ad60-7b5db149f6e8",
+              "name": "Invoice_Link",
+              "value": "={{ $json.Invoice_Link }}",
+              "type": "string"
+            },
+            {
+              "id": "1916ee1f-47f4-418d-8515-356d67933f32",
+              "name": "Total Amount",
+              "value": "={{ $json.Total_Amount }}",
+              "type": "string"
+            },
+            {
+              "id": "3b22da6d-759e-4bcc-95b7-9962c0114249",
+              "name": "Taxable Value",
+              "value": "={{ $json.Taxable_Value }}",
+              "type": "string"
+            },
+            {
+              "id": "a85e3f90-1754-47a1-9f64-ef4332a10eca",
+              "name": "CGST Amount",
+              "value": "={{ $json.CGST_Amount }}",
+              "type": "string"
+            },
+            {
+              "id": "20822357-944c-459c-9227-e81ba984f17a",
+              "name": "Quantity",
+              "value": "={{ $json.Quantity }}",
+              "type": "string"
+            },
+            {
+              "id": "4dc10f41-5781-4cf2-9cbe-7ed9d045b82a",
+              "name": "HSN/SAC Code",
+              "value": "={{ $json['HSN/SAC_Code'] }}",
+              "type": "string"
+            },
+            {
+              "id": "19eb86b7-68c4-4c93-9548-08dd0c188998",
+              "name": "Supplier GSTIN",
+              "value": "={{ $json.Supplier_GSTIN }}",
+              "type": "string"
+            },
+            {
+              "id": "5c9850b6-a4b5-4c5f-97a2-efd0d25863c4",
+              "name": "Supplier Name",
+              "value": "={{ $json.Supplier_Name }}",
+              "type": "string"
+            },
+            {
+              "id": "be88bd54-cb34-4c26-bd6f-afc0ef3be9b1",
+              "name": "Invoice Date",
+              "value": "={{ $json.Invoice_Date }}",
+              "type": "string"
+            },
+            {
+              "id": "29c48e11-8294-4629-9653-9a167a224649",
+              "name": "Invoice Number",
+              "value": "={{ $json.Invoice_Number }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4736,
+        320
+      ],
+      "id": "19a1bccc-d7d3-4e20-96a4-cf5e3eb980d1",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4432,
+        288
+      ],
+      "id": "32c97d78-e3e9-4cb9-b733-80d9d2f6deec",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI",
+          "mode": "list",
+          "cachedResultName": "Invoice_Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 515935945,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13Fw6_SNNYeWIHaGAXM93zRNhV3xPWgu58uheDp9HDUI/edit#gid=515935945"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rag_Status": "Done",
+            "Invoice_Number": "={{ $('Get row(s) in sheet1').item.json.Invoice_Number }}"
+          },
+          "matchingColumns": [
+            "Invoice_Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice_Number",
+              "displayName": "Invoice_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice_Date",
+              "displayName": "Invoice_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Supplier_Name",
+              "displayName": "Supplier_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Supplier_GSTIN",
+              "displayName": "Supplier_GSTIN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "HSN/SAC_Code",
+              "displayName": "HSN/SAC_Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "CGST_Amount",
+              "displayName": "CGST_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Taxable_Value",
+              "displayName": "Taxable_Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Total_Amount",
+              "displayName": "Total_Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invoice_Link",
+              "displayName": "Invoice_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Rag_Status",
+              "displayName": "Rag_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6416,
+        320
+      ],
+      "id": "70e1e560-b90e-4b21-a482-05e9fdb222b4",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let sentence = `Invoice Number ${$input.first().json['Invoice Number']}, dated ${$input.first().json['Invoice Date']}, from Supplier Name ${$input.first().json['Supplier Name']}, lists Total Amount ${$input.first().json['Total Amount']}, and Taxable Value ${$input.first().json['Taxable Value']}, with CGST Amount ${$input.first().json['CGST Amount']} and Quantity ${$input.first().json['Quantity']} view at Invoice_Link ${$input.first().json['Invoice_Link']} — HSN/SAC Code ${$input.first().json['HSN/SAC Code']}, Supplier GSTIN ${$input.first().json['Supplier GSTIN']}`;\n\nreturn {\n  json: {\n    structured_text: sentence\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4960,
+        320
+      ],
+      "id": "c9549f1a-9438-4dcc-bc06-bc2a3d995a11",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -80
+      ],
+      "id": "fefd10c7-38b9-4479-901f-e8ae49946030",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "y70WobcgCR0EYsuv",
+          "name": "Groq-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        928,
+        240
+      ],
+      "id": "df4e8abd-d346-441c-bfd1-70855afc6346",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "y70WobcgCR0EYsuv",
+          "name": "Groq-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2656,
+        304
+      ],
+      "id": "bb77a5fe-c93a-4171-b4b7-6f266c9aa3be",
+      "name": "Groq Chat Model3",
+      "credentials": {
+        "groqApi": {
+          "id": "y70WobcgCR0EYsuv",
+          "name": "Groq-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        800
+      ],
+      "id": "0d6eaad9-dc14-4956-ae7f-886d211d2f6d",
+      "name": "Groq Chat Model4",
+      "credentials": {
+        "groqApi": {
+          "id": "y70WobcgCR0EYsuv",
+          "name": "Groq-hricheakg@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7f1452c6-63a4-464f-af1c-6a5eefe5aa94",
+              "leftValue": "={{ $json.output['Invoice No'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a6b50587-bd69-4015-801c-4bcbb99487cd",
+              "leftValue": "={{ $json.output['Supplier Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7d0ebfe6-0edc-4289-a49c-27f28c1c14bb",
+              "leftValue": "={{ $json.output['Supplier GSTIN/UIN'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eef01391-9b2d-4d3d-9089-e8a0831b6d3c",
+              "leftValue": "={{ $json.output['HSN/SAC'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "09812d5d-460a-4ae9-aadb-0f0acbd830d4",
+              "leftValue": "={{ $json.output['Quantity (M.T./Kgs)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "4e6cf574-be56-4374-b6f8-39dc7a5da0ba",
+              "leftValue": "={{ $json.output['Taxable Value'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "bcdd5569-c1e8-49ef-ad9e-cdd11842bdfd",
+              "leftValue": "={{ $json.output['Total Tax Amount'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8c5e6374-544e-4e92-82bf-a4d420ce6bd7",
+              "leftValue": "={{ $json.output['Total (Grand Total)'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "198e01e0-b4e1-4538-9397-8d0ea0c5c9a5",
+              "leftValue": "={{ $json.output.Dated }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2752,
+        80
+      ],
+      "id": "ba06a8fd-c44e-4a43-9d9d-a0e8bb9a1bd3",
+      "name": "If8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        304
+      ],
+      "id": "33462b9a-3ef7-4e28-aac5-4fe61662b89f",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Downloading the file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downloading the file1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Extract Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Downloading the file4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Checking The Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Getting Markdown1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Checking The Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sending the file1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Getting Markdown1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking The Status1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file2": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Move file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downloading the file4": {
+      "main": [
+        [
+          {
+            "node": "Sending the file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor2": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Analyze image1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downloading the file3": {
+      "main": [
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model7": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor3": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file3": {
+      "main": [
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Move file3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader2": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader2",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform for Vector": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Data": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store4": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini3": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Downloading the file3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80ede59fd4625ab3890a228bb149131e70c9fc252e776f7cd4cba830c3f8cb6d"
+  }
+}
