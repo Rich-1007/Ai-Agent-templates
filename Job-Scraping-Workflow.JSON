@@ -1,0 +1,1616 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        96
+      ],
+      "id": "798fe02b-4303-45b8-a62f-4b432c006a28",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q",
+          "mode": "list",
+          "cachedResultName": "Browserflow-linkedin-jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1320670654,
+          "mode": "list",
+          "cachedResultName": "off-Campus-Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit#gid=1320670654"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -464,
+        96
+      ],
+      "id": "779828cf-0eb1-4306-8596-8bebe3872b38",
+      "name": "Get row(s) in sheet7",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ce73b66e-fd5b-4e58-bbbe-76e88edbad9f",
+              "leftValue": "={{ $json[\"Job-HTML\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8281543b-d1cb-4eb4-b6ac-dac6d045d6b3",
+              "leftValue": "={{ $json[\"Job-Title\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        96
+      ],
+      "id": "57108027-1a90-4b9b-815b-d353e41b2e18",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "95fedb28-6632-4c18-a9e8-405137d52d01",
+      "name": "Loop Over Items3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This function finds the link after the text \"Apply Link-\"\nfunction extractApplyLink(htmlText) {\n  // Check if htmlText is valid before trying to match\n  if (!htmlText) {\n    return null;\n  }\n  // This new regex is more flexible. It handles extra spaces and newlines.\n  const regex = /Apply Link-[\\s\\S]*?<a[\\s\\S]*?href=\"(.*?)\"/;\n  const match = htmlText.match(regex);\n\n  if (match && match[1]) {\n    return match[1];\n  } else {\n    return null;\n  }\n}\n\n// Get the current item's data\nconst item = $input.item.json;\n\n// --- IMPORTANT ---\n// Change 'Job-HTML' if your field name is different\nconst htmlContent = $input.first().json[\"Job-HTML\"]; \n// --- IMPORTANT ---\n\n// Run the function and add the extracted link to a new field called 'applyLink'\nitem.applyLink = extractApplyLink(htmlContent);\n\n// Return the item with the new data\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        16
+      ],
+      "id": "dcd7cac7-f64f-493d-8be7-2d74831cabe0",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU",
+          "mode": "list",
+          "cachedResultName": "Final-Job-Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1525377598,
+          "mode": "list",
+          "cachedResultName": "off-Campus-Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit#gid=1525377598"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job_Link": "={{ $json.applyLink }}",
+            "Final_Job_Title": "={{ $json[\"Job-Title\"] }}"
+          },
+          "matchingColumns": [
+            "Job_Link"
+          ],
+          "schema": [
+            {
+              "id": "Final_Job_Title",
+              "displayName": "Final_Job_Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job_Link",
+              "displayName": "Job_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        336,
+        16
+      ],
+      "id": "4c514857-9e17-4a42-a1f6-37758dac1da6",
+      "name": "Append or update row in sheet10",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## This is For off-Campus-Jobs Final List \nStage-2",
+        "height": 304,
+        "width": 1376
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "16911f51-8ad3-4b41-b987-6b7cd50eb555",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -112,
+        480
+      ],
+      "id": "18b5ded7-809f-4a6c-980e-380d01c4a7d1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "compare": "=selectedFields",
+        "fieldsToCompare": "Job_Link",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        544
+      ],
+      "id": "2407deff-af74-4f22-acae-b9b56792cfd6",
+      "name": "Remove Duplicates4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b93cc4f-6284-4ccd-8d27-31d6a0253393",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "=https://telegram",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "b31a0b60-c78e-461e-bd3e-a5930d47cbdc",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://offcampusjobs4u",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "a6ab0492-a070-44b9-b4dd-78a939b1ecc3",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://onlinestudy4u",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "1269cd25-5e92-4208-949c-b22ba4c4d6a6",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://www.fresheroffcampus",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "1d65e053-2612-400e-8393-5a1ba219f315",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://www.linkedin",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "ad81202d-b470-4533-a672-7617737ee6ad",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://www.linkedin",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "76362263-c3b3-4ca8-b381-2e1ddd0a6ad2",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://www.fresheroffcampus",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "a1ffca54-17e7-4c39-8599-385354d2ff10",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://onlinestudy4u",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "72798581-bda1-4b4c-b050-5742363deb47",
+              "leftValue": "={{ $json.Job_Link }}",
+              "rightValue": "https://docs.google.com",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "9832decc-a636-427d-b95c-24a150063e55",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        544
+      ],
+      "id": "5631fae8-d557-4730-b8c1-f4486d436d16",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU",
+          "mode": "list",
+          "cachedResultName": "Final-Job-Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1525377598,
+          "mode": "list",
+          "cachedResultName": "off-Campus-Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit#gid=1525377598"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        544
+      ],
+      "id": "1604d2e2-27b4-49be-8ff1-daf566c8ce18",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        608,
+        720
+      ],
+      "id": "d77946ae-8149-41bc-a33b-35610ddf636d",
+      "name": "Google Gemini Chat Model8",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fbk46DAxDJXpp2aE",
+          "name": "Google Gemini-Sibu.8th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Get Markdowns\n- Fetch Web Content\n- Scrapes the target URL provided by the trigger.",
+        "height": 360,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        304
+      ],
+      "id": "9dd049ed-0b88-49e4-a1ad-95ba38462db0",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a JSON extractor. Input: raw text with one or more job listings (may be from {{ $('Scrape a url and get its content4').item.json.data.markdown }}). Output: ONLY a JSON array of objects (no markdown, no explanations).\n\nExact JSON schema (must match exactly):\n[{\n  \"job_title\": \"string\",\n  \"company_name\": \"string\",\n  \"location\": \"string\",\n  \"exp\": \"string\",\n  \"package\": \"string\",\n  \"skills_1\": \"string\",\n  \"skills_2\": \"string\",\n  \"skills_3\": \"string\",\n  \"Key_Skills\": \"string\"\n}]\n\nRules:\n1. Remove only \"job_description\" and \"image_url\". Keep all other original fields unchanged. Use \"\" for missing fields, except \"exp\" which must be inferred when absent as per Rule 4.\n2. location: single-word city (capitalized) OR \"Pan India\" OR \"\".\n   - If text contains \"Pan India\"/\"Across India\"/\"All India\"/\"India-wide\", set \"Pan India\".\n   - Else take the first segment before commas/|/slashes/parentheses, replace hyphens/underscores with spaces, trim, then return the first word capitalized; if unclear, \"\".\n3. package: MUST be in LPA.\n   - Monthly INR → (monthly*12)/100000; annual INR → /100000.\n   - Keep up to 2 decimals, no commas. Ranges: convert both ends (e.g., \"3-5 LPA\").\n   - Other currencies or ambiguous → \"\".\n4. exp: format \"A-B Year\" (integers).\n   - Normalize: \"1-3 yrs\"→\"1-3 Year\"; \"2 years\"→\"2-2 Year\"; \"Fresher\"/\"<1 year\"/\"0 yr\"→\"0-1 Year\".\n   - Months <12→\"0-1 Year\".\n   - If not explicitly mentioned, infer from title/keywords:\n     - Contains \"Senior\", \"Lead\", \"Manager\", \"Architect\", \"Principal\", \"Staff\" → \"5-10 Year\".\n     - Contains \"Engineer II\", \"Engineer 2\", \"Intermediate\", \"Mid\", \"Associate\" → \"2-4 Year\".\n     - Contains \"Junior\", \"Entry\", \"Trainee\", \"Intern\", \"Graduate\" → \"0-1 Year\".\n     - Otherwise default to \"0-1 Year\".\n5. skills_1 / skills_2 / skills_3: derive from the job listing content only (responsibilities/requirements/JD).\n   - Prioritize items under \"Must have skills\"/\"Must have\". If absent, pick the three most relevant skills in the job description.\n   - Normalize variant names to clear canonical names.\n   - Each value must follow exactly: <Skill Name> — <Short description under 15 words>\n   - Output exactly three skills (Skill 1..3). If fewer explicit skills, infer best matches; if still insufficient, leave remaining fields as \"\".\n6. Key_Skills: return three concrete tools/technologies from the JD—prioritize items like Power BI, Tableau, Python over generic concepts—normalize names, and output exactly \"Skill1 | Skill2 | Skill3\" with two delimiters, leaving blanks if fewer than three (e.g., \"Python | SQL | \" or \" | | \").\n7. Strip all HTML/markdown from values.\n8. Deduplicate by exact string-equality of job_title + company_name; keep the first.\n9. Parse multiple listings separately; preserve punctuation inside strings where applicable.\n10. Return only the JSON array.",
+        "hasOutputParser": true,
+        "needsFallback": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        608,
+        464
+      ],
+      "id": "ceaea15e-88cf-4457-a42c-8b9109b3b0a1",
+      "name": "Parse Data with LLM4",
+      "retryOnFail": true,
+      "executeOnce": false,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "prompt": "=Instructions:\n--------------\n{instructions}\n--------------\nCompletion:\n--------------\n{completion}\n--------------\n\nAbove, the Completion did not satisfy the constraints given in the Instructions.\nError:\n--------------\n{error}\n--------------\n\nPlease try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        800,
+        640
+      ],
+      "id": "76bed1a2-e263-4a44-861f-96de79666e69",
+      "name": "Auto-fixing Output Parser4"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[{\n  \"job_title\": \"string\",\n  \"company_name\": \"string\",\n  \"location\": \"string\",\n  \"exp\": \"string\",\n  \"package\": \"string\",\n  \"skills_1\": \"string\",\n  \"skills_2\": \"string\",\n  \"skills_3\": \"string\",\n  \"Key_Skills\": \"string\"\n}]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        832
+      ],
+      "id": "0983a863-d08e-4a66-b74c-3fac71920a6d",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        720,
+        864
+      ],
+      "id": "d853715b-e55c-420d-a54e-0b26268f07b7",
+      "name": "Google Gemini Chat Model9",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fbk46DAxDJXpp2aE",
+          "name": "Google Gemini-Sibu.8th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Parse the scraping\n- Extract with AI\n- Uses Gemini LLM to parse structured data from scraped content.",
+        "height": 740,
+        "width": 620,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        528,
+        304
+      ],
+      "id": "af6bc333-fbe8-4806-ae58-3a640d6514e9",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.Job_Link }}",
+        "parsers": [
+          "pdf"
+        ],
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        224,
+        480
+      ],
+      "id": "1693fd68-d7ae-497b-b82e-480b02799eb5",
+      "name": "Scrape a url and get its content4",
+      "alwaysOutputData": true,
+      "credentials": {
+        "firecrawlApi": {
+          "id": "fuIKtopjSd0Y3OAM",
+          "name": "2-Firecrawl-grego.rym.jen.s.on.5@googlemail.com"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": "mistralai/mistral-7b-instruct:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        688,
+        624
+      ],
+      "id": "34432903-bbb3-4080-a318-0b67f4344faa",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q",
+          "mode": "list",
+          "cachedResultName": "Browserflow-linkedin-jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1437962570,
+          "mode": "list",
+          "cachedResultName": "ALl-Jobs-With-Details-2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit#gid=1437962570"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ $json.output[0].company_name }}",
+            "Skill_3": "={{ $json.output[0].skills_3 }}",
+            "Skill_2": "={{ $json.output[0].skills_2 }}",
+            "Skill_1": "={{ $json.output[0].skills_1 }}",
+            "Package": "={{ $json.output[0].package }}",
+            "exp": "={{ $json.output[0].exp }}",
+            "Location": "={{ $json.output[0].location }}",
+            "Job_Title": "={{ $json.output[0].job_title }}",
+            "Status": "Panding",
+            "Key_Skills": "={{ $json.output[0].Key_Skills }}",
+            "Apply_Link": "={{ $('Loop Over Items').item.json.Job_Link }}"
+          },
+          "matchingColumns": [
+            "Company"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image_Url",
+              "displayName": "Image_Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job_Title",
+              "displayName": "Job_Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "exp",
+              "displayName": "exp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Package",
+              "displayName": "Package",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key_Skills",
+              "displayName": "Key_Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skill_1",
+              "displayName": "Skill_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skill_2",
+              "displayName": "Skill_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skill_3",
+              "displayName": "Skill_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Apply_Link",
+              "displayName": "Apply_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image_Binary_Data",
+              "displayName": "Image_Binary_Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1264,
+        448
+      ],
+      "id": "7539d49e-c5bf-4fcc-be59-4bc651c7d420",
+      "name": "Append or update row in sheet4",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        624,
+        1504
+      ],
+      "id": "8fae17e2-8fc5-49ed-b100-4989093ef8ce",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fbk46DAxDJXpp2aE",
+          "name": "Google Gemini-Sibu.8th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Get Markdowns\n- Fetch Web Content\n- Scrapes the target URL provided by the trigger.",
+        "height": 360,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        1088
+      ],
+      "id": "799e8eb3-e2a9-4c7e-afd8-ffbea3f6f054",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a JSON extractor. Input: raw text with one or more job listings (may be from {{ $('Scrape a url and get its content').item.json.data.markdown }}). Output: ONLY a JSON array of objects (no markdown, no explanations).\n\nExact JSON schema (must match exactly):\n[{\n  \"job_title\": \"string\",\n  \"company_name\": \"string\",\n  \"location\": \"string\",\n  \"exp\": \"string\",\n  \"package\": \"string\",\n  \"skills_1\": \"string\",\n  \"skills_2\": \"string\",\n  \"skills_3\": \"string\",\n  \"Key_Skills\": \"string\"\n}]\n\nRules:\n1. Remove only \"job_description\" and \"image_url\". Keep all other original fields unchanged. Use \"\" for missing fields, except \"exp\" which must be inferred when absent as per Rule 4.\n2. location: single-word city (capitalized) OR \"Pan India\" OR \"\".\n   - If text contains \"Pan India\"/\"Across India\"/\"All India\"/\"India-wide\", set \"Pan India\".\n   - Else take the first segment before commas/|/slashes/parentheses, replace hyphens/underscores with spaces, trim, then return the first word capitalized; if unclear, \"\".\n3. package: MUST be in LPA.\n   - Monthly INR → (monthly*12)/100000; annual INR → /100000.\n   - Keep up to 2 decimals, no commas. Ranges: convert both ends (e.g., \"3-5 LPA\").\n   - Other currencies or ambiguous → \"\".\n4. exp: format \"A-B Year\" (integers).\n   - Normalize: \"1-3 yrs\"→\"1-3 Year\"; \"2 years\"→\"2-2 Year\"; \"Fresher\"/\"<1 year\"/\"0 yr\"→\"0-1 Year\".\n   - Months <12→\"0-1 Year\".\n   - If not explicitly mentioned, infer from title/keywords:\n     - Contains \"Senior\", \"Lead\", \"Manager\", \"Architect\", \"Principal\", \"Staff\" → \"5-10 Year\".\n     - Contains \"Engineer II\", \"Engineer 2\", \"Intermediate\", \"Mid\", \"Associate\" → \"2-4 Year\".\n     - Contains \"Junior\", \"Entry\", \"Trainee\", \"Intern\", \"Graduate\" → \"0-1 Year\".\n     - Otherwise default to \"0-1 Year\".\n5. skills_1 / skills_2 / skills_3: derive from the job listing content only (responsibilities/requirements/JD).\n   - Prioritize items under \"Must have skills\"/\"Must have\". If absent, pick the three most relevant skills in the job description.\n   - Normalize variant names to clear canonical names.\n   - Each value must follow exactly: <Skill Name> — <Short description under 15 words>\n   - Output exactly three skills (Skill 1..3). If fewer explicit skills, infer best matches; if still insufficient, leave remaining fields as \"\".\n6. Key_Skills: return three concrete tools/technologies from the JD—prioritize items like Power BI, Tableau, Python over generic concepts—normalize names, and output exactly \"Skill1 | Skill2 | Skill3\" with two delimiters, leaving blanks if fewer than three (e.g., \"Python | SQL | \" or \" | | \").\n7. Strip all HTML/markdown from values.\n8. Deduplicate by exact string-equality of job_title + company_name; keep the first.\n9. Parse multiple listings separately; preserve punctuation inside strings where applicable.\n10. Return only the JSON array.",
+        "hasOutputParser": true,
+        "needsFallback": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        624,
+        1248
+      ],
+      "id": "21143789-bcec-49a0-8b03-ff19ad2e3e85",
+      "name": "Parse Data with LLM",
+      "retryOnFail": true,
+      "executeOnce": false,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "prompt": "=Instructions:\n--------------\n{instructions}\n--------------\nCompletion:\n--------------\n{completion}\n--------------\n\nAbove, the Completion did not satisfy the constraints given in the Instructions.\nError:\n--------------\n{error}\n--------------\n\nPlease try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        816,
+        1424
+      ],
+      "id": "2ac34c6c-5bb7-4a43-b994-3ebf9cd0d593",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[{\n  \"job_title\": \"string\",\n  \"company_name\": \"string\",\n  \"location\": \"string\",\n  \"exp\": \"string\",\n  \"package\": \"string\",\n  \"skills_1\": \"string\",\n  \"skills_2\": \"string\",\n  \"skills_3\": \"string\",\n  \"Key_Skills\": \"string\"\n}]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        1616
+      ],
+      "id": "1570b941-a021-492f-a10f-b786ef0508a7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        736,
+        1648
+      ],
+      "id": "7af33ab9-f2fa-4a70-b6d1-e69914ce1b72",
+      "name": "Google Gemini Chat Model10",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fbk46DAxDJXpp2aE",
+          "name": "Google Gemini-Sibu.8th"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Parse the scraping\n- Extract with AI\n- Uses Gemini LLM to parse structured data from scraped content.",
+        "height": 740,
+        "width": 620,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        544,
+        1088
+      ],
+      "id": "5a27e4b5-2f2f-4559-9674-8fd84110ddfd",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.Job_Link }}",
+        "parsers": [
+          "pdf"
+        ],
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1264
+      ],
+      "id": "b2792978-2b49-463f-838f-c42746edb12a",
+      "name": "Scrape a url and get its content",
+      "alwaysOutputData": true,
+      "credentials": {
+        "firecrawlApi": {
+          "id": "CwV08HN02RDfiHoi",
+          "name": "1-Firecrawl-sri.r.am.a.m.ir.neni9@gmail.com"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": "mistralai/mistral-7b-instruct:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        704,
+        1408
+      ],
+      "id": "a7a0b2d7-c79f-4b0e-a113-e1807c58e56b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wGGbzqfr8UTkGy8h",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q",
+          "mode": "list",
+          "cachedResultName": "Browserflow-linkedin-jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1437962570,
+          "mode": "list",
+          "cachedResultName": "ALl-Jobs-With-Details-2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1por9AsUI8xrb0XGUU4oFqwnaGAkxo2eBxWjXhzOz3_Q/edit#gid=1437962570"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ $json.output[0].company_name }}",
+            "Skill_3": "={{ $json.output[0].skills_3 }}",
+            "Skill_2": "={{ $json.output[0].skills_2 }}",
+            "Skill_1": "={{ $json.output[0].skills_1 }}",
+            "Package": "={{ $json.output[0].package }}",
+            "exp": "={{ $json.output[0].exp }}",
+            "Location": "={{ $json.output[0].location }}",
+            "Job_Title": "={{ $json.output[0].job_title }}",
+            "Status": "Panding",
+            "Key_Skills": "={{ $json.output[0].Key_Skills }}",
+            "Apply_Link": "={{ $('Loop Over Items').item.json.Job_Link }}"
+          },
+          "matchingColumns": [
+            "Company"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image_Url",
+              "displayName": "Image_Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job_Title",
+              "displayName": "Job_Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "exp",
+              "displayName": "exp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Package",
+              "displayName": "Package",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key_Skills",
+              "displayName": "Key_Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skill_1",
+              "displayName": "Skill_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skill_2",
+              "displayName": "Skill_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skill_3",
+              "displayName": "Skill_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Apply_Link",
+              "displayName": "Apply_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image_Binary_Data",
+              "displayName": "Image_Binary_Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1280,
+        1232
+      ],
+      "id": "c44b663d-3258-4749-b636-d45996f47cc4",
+      "name": "Append or update row in sheet",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NxgcLsSkGlKCGX2v",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b38fec48-9593-4f4a-9137-fe71122e8b05",
+              "leftValue": "={{ $json.row_number % 2}}",
+              "rightValue": "={{ 0 }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        864
+      ],
+      "id": "a6b32cf2-d143-4db5-88bc-06a4419d1537",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU",
+          "mode": "list",
+          "cachedResultName": "Final-Job-Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1525377598,
+          "mode": "list",
+          "cachedResultName": "off-Campus-Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit#gid=1525377598"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job_Link": "={{ $json.Apply_Link }}",
+            "Status": "Done"
+          },
+          "matchingColumns": [
+            "Job_Link"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Final_Job_Title",
+              "displayName": "Final_Job_Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job_Link",
+              "displayName": "Job_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1264,
+        736
+      ],
+      "id": "901090fc-c99a-468f-94e7-d40f772a32e8",
+      "name": "Append or update row in sheet1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU",
+          "mode": "list",
+          "cachedResultName": "Final-Job-Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1525377598,
+          "mode": "list",
+          "cachedResultName": "off-Campus-Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dROhXLn7WUf67xBq53BvYJPqet92nmrFq_IpDcm0tLU/edit#gid=1525377598"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job_Link": "={{ $json.Apply_Link }}",
+            "Status": "Done"
+          },
+          "matchingColumns": [
+            "Job_Link"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Final_Job_Title",
+              "displayName": "Final_Job_Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job_Link",
+              "displayName": "Job_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1296,
+        1488
+      ],
+      "id": "110d0882-13c7-4270-994e-203d67875713",
+      "name": "Append or update row in sheet2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f08sGakGxnHzaoL5",
+          "name": "Google Sheets-hricheakg@gmail.com"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet7": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet10": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates4": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse Data with LLM4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Data with LLM4": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Parse Data with LLM4",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser4",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape a url and get its content4": {
+      "main": [
+        [
+          {
+            "node": "Parse Data with LLM4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse Data with LLM4",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse Data with LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Data with LLM": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Parse Data with LLM",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape a url and get its content": {
+      "main": [
+        [
+          {
+            "node": "Parse Data with LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse Data with LLM",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Scrape a url and get its content4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape a url and get its content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "80ede59fd4625ab3890a228bb149131e70c9fc252e776f7cd4cba830c3f8cb6d"
+  }
+}
